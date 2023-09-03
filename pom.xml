@@ -183,7 +183,7 @@
 						<inputSpec>${openapi.generator.maven.plugin.inputSpec}</inputSpec>
 						<configOptions>
 							<reactive>${openapi.generator.maven.plugin.configOptions.reactive}</reactive>
-							<delegatePattern>true</delegatePattern>
+							<delegatePattern>false</delegatePattern>
 							<documentationProvider>springdoc</documentationProvider>
 							<openApiNullable>false</openApiNullable>
 						</configOptions>

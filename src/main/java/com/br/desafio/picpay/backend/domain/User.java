@@ -1,5 +1,6 @@
 package com.br.desafio.picpay.backend.domain;
 
+import com.br.desafio.picpay.backend.domain.enums.UserType;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -11,7 +12,7 @@ import java.util.List;
 @Data
 @EqualsAndHashCode(of = "id")
 @ToString(of = "id")
-@Table(name = "users")
+@Table(name = "user_domain")
 public class User {
 
     @Id
@@ -30,9 +31,13 @@ public class User {
     @Column(nullable = false, unique = true)
     private String cpfCnpj;
 
+    @Enumerated(value = EnumType.STRING)
+    private UserType userType;
+
     @OneToMany(mappedBy = "payer")
-    private List<Transactions> transactionsASPayer;
+    private List<Transaction> transactionASPayer;
+
     @OneToMany(mappedBy = "payee")
-    private List<Transactions> transactionsASPayee;
+    private List<Transaction> transactionASPayee;
 
 }
