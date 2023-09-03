@@ -141,10 +141,16 @@ components:
     ErrorResponse:
       type: object
       properties:
-        descricao:
+        code:
+          type: integer
+          example: 500
+        description:
           type: string
           example: "Erro ao cadastrar Usuário"
-        erros:
+        detailedMessage:
+          type: string
+          example: "SQL Exception -- etc"
+        errors:
           type: array
           items:
             $ref: '#/components/schemas/Erro'
