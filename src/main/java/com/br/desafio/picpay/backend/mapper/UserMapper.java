@@ -1,5 +1,6 @@
 package com.br.desafio.picpay.backend.mapper;
 
+import com.br.desafio.picpay.backend.domain.Account;
 import com.br.desafio.picpay.backend.domain.User;
 import com.br.desafio.picpay.backend.domain.enums.UserType;
 import jar.presentation.representation.CreatedUserResponse;
@@ -17,6 +18,7 @@ public class UserMapper {
         domain.setPassword(request.getPassword());
         domain.setCpfCnpj(request.getCpfCnpj());
         domain.setUserType(isUserPessoaFisica ? UserType.PESSOA_FISICA : UserType.PESSOA_JURIDICA);
+        domain.setAccount(new Account());
 
         return domain;
     }
@@ -25,6 +27,7 @@ public class UserMapper {
         CreatedUserResponse response = new CreatedUserResponse();
         response.setId(user.getId());
         response.setName(user.getFullName());
+        response.setAccountNumber(user.getAccount().getNumber());
 
         return response;
     }

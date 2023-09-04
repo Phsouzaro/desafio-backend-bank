@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -35,9 +36,23 @@ public class User {
     private UserType userType;
 
     @OneToMany(mappedBy = "payer")
-    private List<Transaction> transactionASPayer;
+    private List<Transaction> transactionAsPayer = new ArrayList<>();
 
     @OneToMany(mappedBy = "payee")
-    private List<Transaction> transactionASPayee;
+    private List<Transaction> transactionAsPayee = new ArrayList<>();
 
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    private Account account;
+
+    public void addTransactionAsPayer(Transaction transaction) {
+        this.getTransactionAsPayer().add(transaction);
+    }
+
+    public void addTransactionAsPayee(Transaction transaction) {
+        this.getTransactionAsPayee().add(transaction);
+    }
+
+    public void addAccount(Account account){
+        this.account = account;
+    }
 }

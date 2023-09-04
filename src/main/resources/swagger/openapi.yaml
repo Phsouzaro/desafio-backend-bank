@@ -107,6 +107,9 @@ components:
         name:
           type: string
           description: "Nome do usuario"
+        accountNumber:
+          type: string
+          example: "312udncvuhsd901231cml"
 
     TransactionRequest:
       type: object
