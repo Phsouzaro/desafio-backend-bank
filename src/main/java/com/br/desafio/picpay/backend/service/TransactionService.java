@@ -2,6 +2,7 @@ package com.br.desafio.picpay.backend.service;
 
 import com.br.desafio.picpay.backend.domain.Transaction;
 import com.br.desafio.picpay.backend.domain.User;
+import com.br.desafio.picpay.backend.domain.enums.TransactionStatus;
 import com.br.desafio.picpay.backend.domain.enums.UserType;
 import com.br.desafio.picpay.backend.exception.ErroSistemicoException;
 import com.br.desafio.picpay.backend.mapper.TransactionMapper;
@@ -23,10 +24,10 @@ public class TransactionService {
 
     @Autowired
     private TransactionRepository transactionRepository;
-
     @Autowired
     private UserService userService;
-
+    @Autowired
+    private ServicoAutorizadorService autorizadorService;
     private final TransactionMapper mapper = new TransactionMapper();
 
     @Transactional
@@ -39,9 +40,17 @@ public class TransactionService {
 
             Transaction transaction = mapper.mapFromRequestToTransactionDomain(payer, payee);
 
-            payer.addTransactionAsPayer(transaction);
             payee.addTransactionAsPayee(transaction);
+            payer.addTransactionAsPayer(transaction);
+            boolean isAutorizado = autorizadorService.getAutorizacao();
 
+            if (!isAutorizado) {
+                transaction.setStatus(TransactionStatus.REJECTED);
+            }
+
+            if(transaction.getStatus().equals(TransactionStatus.DONE)){
+                //aqui vai atualizar o saldo dos usuarios
+            }
             transactionRepository.save(transaction);
 
             return mapper.mapFromDomainToTransactionResponse(transaction);
