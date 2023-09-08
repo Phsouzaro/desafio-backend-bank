@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+import java.math.BigDecimal;
+
 @Entity
 @Data
 @EqualsAndHashCode(of = "id")
@@ -24,6 +26,8 @@ public class Transaction {
     @ManyToOne
     @JoinColumn(name = "payee_id")
     private User payee;
+
+    private BigDecimal value;
 
     @Enumerated(value = EnumType.STRING)
     private TransactionStatus status;

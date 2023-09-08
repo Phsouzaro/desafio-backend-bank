@@ -33,41 +33,42 @@ public class TransactionService {
     @Transactional
     public TransactionResponse doTransaction(TransactionRequest body) {
         try {
-            User payer = userService.getUserById(Long.valueOf(body.getPayer()));
-            validatePayer(payer);
-            validateIfPayerHasFunds(payer, body.getValue());
-            User payee = userService.getUserById(Long.valueOf(body.getPayee()));
+            Transaction transaction = validateTransaction(body);
+            boolean isTransacaoAutorizada = autorizadorService.getAutorizacao();
 
-            Transaction transaction = mapper.mapFromRequestToTransactionDomain(payer, payee);
+            if (isTransacaoAutorizada) updateUsersBalance(transaction);
+            else transaction.setStatus(TransactionStatus.REJECTED);
 
-            payee.addTransactionAsPayee(transaction);
-            payer.addTransactionAsPayer(transaction);
-            boolean isAutorizado = autorizadorService.getAutorizacao();
-
-            if (!isAutorizado) {
-                transaction.setStatus(TransactionStatus.REJECTED);
-            }
-
-            if(transaction.getStatus().equals(TransactionStatus.DONE)){
-                //aqui vai atualizar o saldo dos usuarios
-            }
             transactionRepository.save(transaction);
-
             return mapper.mapFromDomainToTransactionResponse(transaction);
         } catch (Exception e) {
             throw new ErroSistemicoException("Erro ao processar transação", e);
         }
     }
 
-    private void validateIfPayerHasFunds(User payer, Long value) {
-        if(payer.getAccount().getBalance().compareTo(BigDecimal.valueOf(value)) <= 0){
-            throw new ErroSistemicoException("REJEITADO: Usuário não possui saldo para transferencia");
-        }
-    }
-
-    private void validatePayer(User payer) {
+    private Transaction validateTransaction(TransactionRequest body){
+        User payer = userService.getUserById(Long.valueOf(body.getPayer()));
         if (payer.getUserType().equals(UserType.PESSOA_JURIDICA)) {
             throw new ErroSistemicoException("REJEITADO: Transferência permitida somente para pessoa física");
         }
+        if(payer.getAccount().getBalance().compareTo(BigDecimal.valueOf(body.getValue())) <= 0){
+            throw new ErroSistemicoException("REJEITADO: Usuário não possui saldo para transferencia");
+        }
+
+        User payee = userService.getUserById(Long.valueOf(body.getPayee()));
+        return mapper.mapFromRequestToTransactionDomain(payer, payee, body.getValue());
     }
+
+    private void updateUsersBalance(Transaction transaction){
+        BigDecimal payerBalance = transaction.getPayer().getAccount().getBalance();
+        transaction.getPayer().getAccount().setBalance(
+                payerBalance.subtract(transaction.getValue())
+        );
+
+        BigDecimal payeeBalance = transaction.getPayee().getAccount().getBalance();
+        transaction.getPayee().getAccount().setBalance(
+                payeeBalance.add(transaction.getValue())
+        );
+    }
+
 }
