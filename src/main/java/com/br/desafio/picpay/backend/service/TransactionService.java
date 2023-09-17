@@ -3,10 +3,10 @@ package com.br.desafio.picpay.backend.service;
 import com.br.desafio.picpay.backend.domain.Transaction;
 import com.br.desafio.picpay.backend.domain.User;
 import com.br.desafio.picpay.backend.domain.enums.TransactionStatus;
-import com.br.desafio.picpay.backend.domain.enums.UserType;
 import com.br.desafio.picpay.backend.exception.ErroSistemicoException;
 import com.br.desafio.picpay.backend.mapper.TransactionMapper;
 import com.br.desafio.picpay.backend.repository.TransactionRepository;
+import com.br.desafio.picpay.backend.validations.UserValidator;
 import jar.presentation.representation.TransactionRequest;
 import jar.presentation.representation.TransactionResponse;
 import lombok.RequiredArgsConstructor;
@@ -22,13 +22,13 @@ import java.math.BigDecimal;
 @RequiredArgsConstructor
 public class TransactionService {
 
+    private final TransactionMapper mapper = new TransactionMapper();
     @Autowired
     private TransactionRepository transactionRepository;
     @Autowired
     private UserService userService;
     @Autowired
     private ServicoAutorizadorService autorizadorService;
-    private final TransactionMapper mapper = new TransactionMapper();
 
     @Transactional
     public TransactionResponse doTransaction(TransactionRequest body) {
@@ -46,29 +46,18 @@ public class TransactionService {
         }
     }
 
-    private Transaction validateTransaction(TransactionRequest body){
+    private Transaction validateTransaction(TransactionRequest body) {
         User payer = userService.getUserById(Long.valueOf(body.getPayer()));
-        if (payer.getUserType().equals(UserType.PESSOA_JURIDICA)) {
-            throw new ErroSistemicoException("REJEITADO: Transferência permitida somente para pessoa física");
-        }
-        if(payer.getAccount().getBalance().compareTo(BigDecimal.valueOf(body.getValue())) <= 0){
-            throw new ErroSistemicoException("REJEITADO: Usuário não possui saldo para transferencia");
-        }
+        UserValidator.validateUserType(payer);
+        UserValidator.validateUserBalance(payer, BigDecimal.valueOf(body.getValue()));
 
         User payee = userService.getUserById(Long.valueOf(body.getPayee()));
         return mapper.mapFromRequestToTransactionDomain(payer, payee, body.getValue());
     }
 
-    private void updateUsersBalance(Transaction transaction){
-        BigDecimal payerBalance = transaction.getPayer().getAccount().getBalance();
-        transaction.getPayer().getAccount().setBalance(
-                payerBalance.subtract(transaction.getValue())
-        );
-
-        BigDecimal payeeBalance = transaction.getPayee().getAccount().getBalance();
-        transaction.getPayee().getAccount().setBalance(
-                payeeBalance.add(transaction.getValue())
-        );
+    private void updateUsersBalance(Transaction transaction) {
+        transaction.getPayee().getWallet().addBalance(transaction.getValue());
+        transaction.getPayer().getWallet().removeBalance(transaction.getValue());
     }
 
 }

@@ -17,10 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 public class UserApiController implements UserApi {
 
+    private final Gson gson = new GsonBuilder().create();
     @Autowired
     private UserService userService;
-
-    private final Gson gson = new GsonBuilder().create();
 
     @Override
     public ResponseEntity<CreatedUserResponse> createUser(UserRequest userRequest) {

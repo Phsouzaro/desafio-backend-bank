@@ -17,9 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 public class TransactionApiController implements TransactionApi {
 
+    private final Gson gson = new GsonBuilder().create();
     @Autowired
     private TransactionService service;
-    private final Gson gson = new GsonBuilder().create();
 
     @Override
     public ResponseEntity<TransactionResponse> makeTransaction(TransactionRequest transactionRequest) {

@@ -42,17 +42,9 @@ public class User {
     private List<Transaction> transactionAsPayee = new ArrayList<>();
 
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
-    private Account account;
-
-    public void addTransactionAsPayer(Transaction transaction) {
-        this.getTransactionAsPayer().add(transaction);
-    }
+    private Wallet wallet;
 
     public void addTransactionAsPayee(Transaction transaction) {
         this.getTransactionAsPayee().add(transaction);
-    }
-
-    public void addAccount(Account account){
-        this.account = account;
     }
 }

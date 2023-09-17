@@ -11,8 +11,8 @@ import java.math.BigDecimal;
 @Data
 @EqualsAndHashCode(of = "id")
 @ToString(of = "id")
-@Table(name = "account_domain")
-public class Account {
+@Table(name = "wallet_domain")
+public class Wallet {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,4 +21,12 @@ public class Account {
     private String number;
 
     private BigDecimal balance;
+
+    public void addBalance(BigDecimal value) {
+        this.balance = this.balance.add(value);
+    }
+
+    public void removeBalance(BigDecimal value) {
+        this.balance = this.balance.subtract(value);
+    }
 }

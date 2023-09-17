@@ -12,23 +12,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.util.UUID;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
+    private final UserMapper mapper = new UserMapper();
     @Autowired
     private UserRepository userRepository;
-    private final UserMapper mapper = new UserMapper();
+
     @Transactional
     public CreatedUserResponse createUser(UserRequest body) {
         User user = mapper.mapFromRequestToUserDomain(body);
-        user.getAccount().setNumber(String.valueOf(UUID.randomUUID()));
-        user.getAccount().setBalance(BigDecimal.ZERO);
-
         try {
             userRepository.save(user);
             return mapper.mapFromDomainToResponse(user);
@@ -37,8 +32,7 @@ public class UserService {
         }
     }
 
-    public User getUserById(Long id){
-        return userRepository.findById(id)
-                .orElseThrow(() -> new ErroSistemicoException("Usuário não encontrado!"));
+    public User getUserById(Long id) {
+        return userRepository.findById(id).orElseThrow(() -> new ErroSistemicoException("Usuário não encontrado!"));
     }
 }

@@ -5,8 +5,7 @@ import jar.presentation.representation.TransactionResponse;
 public enum TransactionStatus {
 
     DONE(TransactionResponse.TransactionStatusEnum.DONE.getValue()),
-    REJECTED(TransactionResponse.TransactionStatusEnum.REJECTED.getValue()),
-    REFUNDED(TransactionResponse.TransactionStatusEnum.REFUNDED.getValue());
+    REJECTED(TransactionResponse.TransactionStatusEnum.REJECTED.getValue());
 
     private final String value;
 
